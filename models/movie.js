@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { isURL } = require('validator');
+const errorMessages = require('../utils/error-messages');
 
 const movieSchema = new mongoose.Schema(
   {
@@ -34,7 +35,7 @@ const movieSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: (v) => isURL(v),
-        message: 'Неправильный формат URL',
+        message: errorMessages.BadUrl,
       },
     },
     // ссылка на трейлер фильма
@@ -43,7 +44,7 @@ const movieSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: (v) => isURL(v),
-        message: 'Неправильный формат URL',
+        message: errorMessages.BadUrl,
       },
     },
     // миниатюрное изображение постера к фильму
@@ -52,7 +53,7 @@ const movieSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: (v) => isURL(v),
-        message: 'Неправильный формат URL',
+        message: errorMessages.BadUrl,
       },
     },
     // _id пользователя, который сохранил фильм

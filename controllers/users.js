@@ -5,6 +5,47 @@ const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const ConflictError = require('../errors/conflict-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
+const errorMessages = require('../utils/error-messages');
+const devConfig = require('../utils/devCongif');
+
+// создание пользователя
+const createUser = (req, res, next) => {
+  const {
+    name,
+    email,
+  } = req.body;
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => User.create({
+      name,
+      email,
+      password: hash,
+    }))
+    .then(() => res.send({ email, name }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError(errorMessages.BadEmailOrName));
+      } else if (err.name === 'MongoServerError') {
+        next(new ConflictError(errorMessages.DuplicateEmail));
+      } else {
+        next(err);
+      }
+    });
+};
+
+// вход
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const { NODE_ENV, JWT_SECRET } = process.env;
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : devConfig.JWT_SECRET_DEV, { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch((err) => {
+      next(new UnauthorizedError(err.message));
+    });
+};
 
 // возвращает информацию о пользователе (email и имя)
 const getUserMe = (req, res, next) => {
@@ -26,63 +67,14 @@ const patchUser = (req, res, next) => {
       if (user) {
         return res.send({ email: user.email, name: user.name });
       }
-      throw new NotFoundError('Пользователь не найден');
+      throw new NotFoundError(errorMessages.NotFoundUser);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Ошибка: Переданы некорректные данные при обновлении профиля - ${err}`));
+        next(new BadRequestError(errorMessages.BadEmailOrName));
       } else {
         next(err);
       }
-    });
-};
-
-// создание пользователя
-const createUser = (req, res, next) => {
-  const {
-    name,
-    email,
-  } = req.body;
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => User.create({
-      name,
-      email,
-      password: hash,
-    }))
-    .then(() => res.send({
-      data: {
-        name,
-        email,
-      },
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Ошибка: Переданы некорректные данные при создании пользователя - ${err}`));
-      } else if (err.name === 'MongoServerError') {
-        next(new ConflictError('Ошибка: Пользователь с такой почтой уже зарегистрирован'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-// вход
-const login = (req, res, next) => {
-  const {
-    email,
-    password,
-  } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const { NODE_ENV, JWT_SECRET } = process.env;
-      // const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-      res.send({ token });
-    })
-    .catch((err) => {
-      next(new UnauthorizedError(err.message));
     });
 };
 
