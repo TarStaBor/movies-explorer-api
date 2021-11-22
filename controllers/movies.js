@@ -53,16 +53,15 @@ const createMovie = (req, res, next) => {
 
 // удаляет сохранённый фильм по id
 const deleteMovie = (req, res, next) => {
-  Movie.findOne({ movieId: req.params.movieId })
+  const { id } = req.params;
+  Movie.findById(id)
+    .orFail(new NotFoundError(errorMessages.NotFoundError))
     .then((movie) => {
-      if (!movie) {
-        next(new NotFoundError(errorMessages.NotFoundError));
-      } else if (movie.owner.toString() === req.user._id) {
-        movie.remove()
+      if (movie.owner.toString() === req.user._id) {
+        return movie.remove()
           .then(res.send({ message: errorMessages.SuccessDelete }));
-      } else {
-        next(new ForbiddenError(errorMessages.ForbiddenError));
       }
+      throw new ForbiddenError(errorMessages.ForbiddenError);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

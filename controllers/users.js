@@ -6,7 +6,7 @@ const BadRequestError = require('../errors/bad-request-err');
 const ConflictError = require('../errors/conflict-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
 const errorMessages = require('../utils/error-messages');
-const devConfig = require('../utils/devCongif');
+const devConfig = require('../utils/devConfig');
 
 // создание пользователя
 const createUser = (req, res, next) => {
@@ -25,7 +25,7 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(errorMessages.BadEmailOrName));
-      } else if (err.name === 'MongoServerError') {
+      } else if (err.code === 11000) {
         next(new ConflictError(errorMessages.DuplicateEmail));
       } else {
         next(err);
@@ -72,6 +72,8 @@ const patchUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(errorMessages.BadEmailOrName));
+      } else if (err.code === 11000) {
+        next(new ConflictError(errorMessages.DuplicateEmail));
       } else {
         next(err);
       }

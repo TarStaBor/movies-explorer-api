@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: 'ENV_FILENAME' });
 const cors = require('cors');
 const express = require('express');
 const helmet = require('helmet');
@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const allRouters = require('./routes/index');
 const errorsMiddleware = require('./middlewares/errors');
-const devConfig = require('./utils/devCongif');
+const devConfig = require('./utils/devConfig');
 const limiter = require('./middlewares/rateLimit');
 
 const { dbSrc, NODE_ENV } = process.env;
@@ -19,7 +19,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect(NODE_ENV !== 'production' ? dbSrc : devConfig.dbDev, {
+mongoose.connect(NODE_ENV === 'production' ? dbSrc : devConfig.dbDev, {
   useNewUrlParser: true,
 });
 

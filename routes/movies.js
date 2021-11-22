@@ -10,10 +10,10 @@ const {
 // возвращает все сохранённые пользователем фильмы
 router.get('/', getMoviesValidate, getMovies);
 
-// создаёт фильм с переданными в теле
+// создаёт фильм с переданными в теле данными
 router.post('/', createMovieValidate, createMovie);
 
 // удаляет сохранённый фильм по id
-router.delete('/:movieId', deleteMovie);
+router.delete('/:id', deleteMovie);
 
 module.exports = router;
