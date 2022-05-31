@@ -1,7 +1,9 @@
-# **Проект: Movies-explorer-api**
+# **Project: Movies explorer api**
 
-## IP адресс ➡️ 51.250.16.129
-## [Ссылка на сервер ⬅️](https://api.film-explorer.nomoredomains.rocks/)
+## IP address ➡️ 185.5.251.34
+
+## [Link to the server ⬅️](https://api.film-explorer.nomoredomains.rocks/)
+
 ---
 
-![Иллюстрация к проекту](https://moviestart.ru/wp-content/uploads/2020/12/image-21-02-20-08-02.jpg)
+![Illustration for the project](https://moviestart.ru/wp-content/uploads/2020/12/image-21-02-20-08-02.jpg)
